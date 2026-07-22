@@ -1,0 +1,18 @@
+# Build output
+dist/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+
+# Secrets & local config
+.env
+config.yaml
+.github-token-cache.json
+.gh-token
+.gitconfig-bot
