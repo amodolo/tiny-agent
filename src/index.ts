@@ -1,24 +1,34 @@
-import agent from "./agent";
-
-const messages = ["What's the weather in Rome?", "What is 17 + 38?"];
+import { HumanMessage } from "@langchain/core/messages";
+import type { BaseMessage } from "@langchain/core/messages";
+import { model, tools } from "./agent";
 
 async function main() {
-    messages.forEach(async (message) => {
-        const result = await agent.invoke({
-            messages: [
-                {
-                    role: "user",
-                    content: message
-                }
-            ]
-        });
-        console.log("User message:", message);
-        result.messages.at(-1)?.content &&
-            console.log("Agent response:", result.messages.at(-1)?.content);
-    });
+    const messages: BaseMessage[] = [
+        new HumanMessage({ content: "Use add_numbers to calculate 17 + 38." }),
+        new HumanMessage({ content: "What's the weather in London." })
+    ];
+
+    while (true) {
+        const response = await model.invoke(messages);
+        console.log("Model response:", response);
+
+        if (!response.tool_calls?.length) {
+            console.log(response.content);
+            break;
+        }
+
+        for (const toolCall of response.tool_calls) {
+            const tool = tools.find((tool) => tool.name === toolCall.name);
+
+            if (!tool) {
+                throw new Error(`Tool sconosciuto: ${toolCall.name}`);
+            }
+
+            const response = await tool.invoke(toolCall);
+            console.log("Tool response:", response);
+            messages.push(response);
+        }
+    }
 }
 
-main().catch((error) => {
-    console.error(error);
-    return;
-});
+main().catch(console.error);

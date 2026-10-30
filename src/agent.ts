@@ -1,14 +1,13 @@
 import { addNumber, getWeather } from "./tools";
-import { createAgent } from "langchain";
 import { ChatOllama } from "@langchain/ollama";
+import type { StructuredToolInterface } from "@langchain/core/tools";
 
-export default createAgent({
-    model: new ChatOllama({
-        model: "qwen3.5:4b",
-        baseUrl: "http://localhost:11434",
-        think: false,
-        temperature: 0,
-    }),
-    tools: [addNumber, getWeather],
-    description: "An agent that can add numbers and get weather information.",
+const chatOllama: ChatOllama = new ChatOllama({
+    model: "qwen3.5:9b",
+    baseUrl: "http://localhost:11434",
+    think: false,
+    temperature: 0
 });
+
+export const tools: StructuredToolInterface[] = [addNumber, getWeather];
+export const model = chatOllama.bindTools(tools);
